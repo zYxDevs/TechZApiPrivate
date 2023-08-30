@@ -25,9 +25,7 @@ class AnimeWorldIN:
         if time.time() - SEARCH_CACHE.get("time", 0) < 60 * 60:
             SEARCH_CACHE = {"time": time.time(), "query": {}}
 
-        async with self.session.get(
-            f"https://{self.host}/advanced-search/?s_keyword=" + query
-        ) as resp:
+        async with self.session.get(f"https://{self.host}/advanced-search/?s_keyword={query}") as resp:
             soup = bs(
                 await resp.text(),
                 "html.parser",
@@ -52,7 +50,7 @@ class AnimeWorldIN:
                 }
             )
 
-        if len(results) != 0:
+        if results:
             SEARCH_CACHE["query"][query] = results
         return results
 
@@ -64,7 +62,7 @@ class AnimeWorldIN:
                 print("from cache")
                 return ANIME_CACHE[anime]["results"]
 
-        async with self.session.get(f"https://{self.host}/series/" + anime) as resp:
+        async with self.session.get(f"https://{self.host}/series/{anime}") as resp:
             soup = bs(
                 await resp.text(),
                 "html.parser",
@@ -97,12 +95,10 @@ class AnimeWorldIN:
             "li",
             "list-none py-2 my-4 border-t border-b border-white border-opacity-25",
         ).find_all("a")
-        x = []
-        for i in genre:
-            x.append(i.text.strip())
+        x = [i.text.strip() for i in genre]
         data["genre"] = x
 
-        if len(data) != 0:
+        if data:
             ANIME_CACHE[anime] = {"time": time.time(), "results": data}
         return data
 

@@ -10,19 +10,16 @@ userdb = db.userdb
 
 
 class DB:
-    async def get_user(api_key):
-        return await userdb.find_one({"api_key": api_key})
+    async def get_user(self):
+        return await userdb.find_one({"api_key": self})
 
-    async def is_user(api_key):
-        if await userdb.find_one({"api_key": api_key}):
-            return True
-        else:
-            return False
+    async def is_user(self):
+        return bool(await userdb.find_one({"api_key": self}))
 
-    async def reduce_credits(api_key, amount):
-        user = await DB.get_user(api_key)
+    async def reduce_credits(self, amount):
+        user = await DB.get_user(self)
         if user["credits"] < amount:
             raise Exception("Not enough credits")
         await userdb.update_one(
-            {"api_key": api_key}, {"$inc": {"credits": -amount, "used": amount}}
+            {"api_key": self}, {"$inc": {"credits": -amount, "used": amount}}
         )
