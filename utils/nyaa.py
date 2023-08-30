@@ -37,32 +37,22 @@ class Nyaasi:
             try:
                 if "Information" in t:
                     inf.remove([t, y])
-                else:
-                    pass
             except:
                 pass
-        json = {}
-        json["success"] = True
-        results = {}
-        results["title"] = title
+        results = {"title": title}
         for a in inf:
             results[f"{a[0]}"] = a[1].strip()
         results["magnet"] = link
-        json["results"] = results
-        return json
+        return {"success": True, "results": results}
 
-    async def get_nyaa_latest(max=10):
+    async def get_nyaa_latest(self):
         data = feedparser.parse("https://nyaa.si/?page=rss")
-        data = data.entries[:max]
-        json = {}
-        json["success"] = True
+        data = data.entries[:self]
         result = []
 
         for i in data:
-            dict = {}
-
             code = str(i.get("link")).replace(".torrent", "").split("/")[-1]
-            dict["title"] = i.get("title")
+            dict = {"title": i.get("title")}
             dict["seeders"] = i.get("nyaa_seeders")
             dict["leechers"] = i.get("nyaa_leechers")
             dict["downloads"] = i.get("nyaa_downloads")
@@ -75,5 +65,4 @@ class Nyaasi:
 
             result.append(dict)
 
-        json["results"] = result
-        return json
+        return {"success": True, "results": result}

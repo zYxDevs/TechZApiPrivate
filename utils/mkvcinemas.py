@@ -52,9 +52,7 @@ users_queue = []
 
 
 def is_user_in_queue(api):
-    if api in users_queue:
-        return True
-    return False
+    return api in users_queue
 
 
 def get_queue_pos(hash):
@@ -173,11 +171,10 @@ def getDriver() -> webdriver.Chrome:
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_experimental_option(
         "excludeSwitches", ["enable-logging"])
-    myDriver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()), options=chrome_options
+    return webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=chrome_options,
     )
-
-    return myDriver
 
 
 def scrap_mkv(x):
@@ -187,8 +184,7 @@ def scrap_mkv(x):
 
     mealob = []
     for i in soup.find_all("a"):
-        u = i.get("href")
-        if u:
+        if u := i.get("href"):
             u = str(u)
             if u.startswith("https://ww3.mkvcinemas.lat?"):
                 mealob.append(u)
@@ -240,8 +236,6 @@ def scrap_mkv(x):
             pos += 1
         except Exception as e:
             print(e)
-            pass
-
     try:
         users_queue.remove(api_key)
     except:

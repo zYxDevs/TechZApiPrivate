@@ -5,7 +5,7 @@ import time
 
 def format_url(url):
     if not url.startswith("https"):
-        url = "https:" + url
+        url = f"https:{url}"
     return url.replace("mixdrop.co", "mixdrop.ch").replace("dood.wf", "dood.yt")
 
 
@@ -44,7 +44,7 @@ class GoGoApi:
                 {"id": id, "img": img, "title": title, "lang": lang, "episode": episode}
             )
 
-        if len(results) != 0:
+        if results:
             LATEST_CACHE[page] = {"time": time.time(), "results": results}
         return results
 
@@ -58,9 +58,7 @@ class GoGoApi:
         if time.time() - SEARCH_CACHE.get("time", 0) < 60 * 60:
             SEARCH_CACHE = {"time": time.time(), "query": {}}
 
-        async with self.session.get(
-            f"https://{self.host}/search.html?keyword=" + query
-        ) as resp:
+        async with self.session.get(f"https://{self.host}/search.html?keyword={query}") as resp:
             soup = bs(
                 await resp.text(),
                 "html.parser",
@@ -76,7 +74,7 @@ class GoGoApi:
             released = i.find("p", "released").text.replace("Released:", "").strip()
             results.append({"id": id, "img": img, "title": title, "year": released})
 
-        if len(results) != 0:
+        if results:
             SEARCH_CACHE["query"][query] = results
         return results
 
@@ -88,7 +86,7 @@ class GoGoApi:
                 print("from cache")
                 return ANIME_CACHE[anime]["results"]
 
-        async with self.session.get(f"https://{self.host}/category/" + anime) as resp:
+        async with self.session.get(f"https://{self.host}/category/{anime}") as resp:
             soup = bs(
                 await resp.text(),
                 "html.parser",
@@ -103,11 +101,7 @@ class GoGoApi:
 
         img = soup.find("div", "anime_info_body_bg").find("img").get("src")
 
-        if "dub" in anime.lower():
-            dub = "DUB"
-        else:
-            dub = "SUB"
-
+        dub = "DUB" if "dub" in anime.lower() else "SUB"
         data = {
             "id": anime,
             "title": title,
@@ -130,7 +124,7 @@ class GoGoApi:
             y = " ".join(i.split(":")[1:]).strip()
             data[x] = y
 
-        if len(data) != 0:
+        if data:
             ANIME_CACHE[anime] = {"time": time.time(), "results": data}
         return data
 
@@ -174,9 +168,7 @@ class GoGoApi:
             }
         auth_gogo = Gcookie["cookie"]
 
-        data = {}
-        data["DL"] = {}
-
+        data = {"DL": {}}
         async with self.session.get(
             f"https://{self.host}/{id}", cookies={"auth": auth_gogo}
         ) as resp:
@@ -202,7 +194,7 @@ class GoGoApi:
             return {"embeds": embeds, "dlinks": dlink}
 
         if "dub" in id:
-            if lang == "dub" or lang == "both":
+            if lang in ["dub", "both"]:
                 data["DUB"] = embeds
                 data["DL"]["DUB"] = dlink
 
@@ -216,8 +208,7 @@ class GoGoApi:
             ) as resp:
                 soup = bs(await resp.read(), "html.parser")
 
-            error = soup.find("h1", "entry-title")
-            if error:
+            if error := soup.find("h1", "entry-title"):
                 return data
             div = soup.find("div", "anime_muti_link")
             a = div.find_all("a")
@@ -235,13 +226,11 @@ class GoGoApi:
                 y = i.get("href").strip()
                 dlink[x] = y
 
-            if lang == "sub" or lang == "both":
+            if lang in ["sub", "both"]:
                 data["SUB"] = embeds
                 data["DL"]["SUB"] = dlink
-            return data
-
         else:
-            if lang == "sub" or lang == "both":
+            if lang in ["sub", "both"]:
                 data["SUB"] = embeds
                 data["DL"]["SUB"] = dlink
 
@@ -260,8 +249,7 @@ class GoGoApi:
                 f"https://{self.host}/{id}", cookies={"auth": auth_gogo}
             ) as resp:
                 soup = bs(await resp.read(), "html.parser")
-            error = soup.find("h1", "entry-title")
-            if error:
+            if error := soup.find("h1", "entry-title"):
                 return data
             div = soup.find("div", "anime_muti_link")
             a = div.find_all("a")
@@ -278,10 +266,11 @@ class GoGoApi:
                 y = i.get("href").strip()
                 dlink[x] = y
 
-            if lang == "dub" or lang == "both":
+            if lang in ["dub", "both"]:
                 data["DUB"] = embeds
                 data["DL"]["DUB"] = dlink
-            return data
+
+        return data
 
     def get_gogo_cookie(self, email, password):
         s = requests.session()
@@ -297,7 +286,7 @@ class GoGoApi:
         headers = {
             "User-Agent": "Mozilla/5.0 (Linux; Android 9; vivo 1916) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36",
             "authority": "gogo-cdn.com",
-            "referer": f"https://gogoanimehd.io/",
+            "referer": "https://gogoanimehd.io/",
             "content-type": "application/x-www-form-urlencoded",
         }
         s.headers = headers

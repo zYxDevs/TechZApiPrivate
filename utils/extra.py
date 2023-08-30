@@ -3,7 +3,7 @@ import random
 
 
 async def download(session, url, f=False):
-    img = "temp_files/" + str(random.randint(11111111, 99999999)) + ".jpg"
+    img = f"temp_files/{random.randint(11111111, 99999999)}.jpg"
     if not url.endswith((".png", ".jpg", ".jpeg")) and not f:
         async with session.head(url) as resp:
             x = resp.headers

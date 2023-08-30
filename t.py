@@ -52,9 +52,7 @@ users_queue = []
 
 
 def is_user_in_queue(api):
-    if api in users_queue:
-        return True
-    return False
+    return api in users_queue
 
 
 def get_queue_pos(hash):
@@ -166,12 +164,10 @@ async def scrapper_task(loop):
 
 def getDriver() -> webdriver.Chrome:
     chrome_options = webdriver.ChromeOptions()
-    # chrome_options.add_argument("--headless")
-    myDriver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()), options=chrome_options
+    return webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=chrome_options,
     )
-
-    return myDriver
 
 
 def scrap_mkv(i):

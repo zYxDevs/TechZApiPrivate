@@ -46,7 +46,7 @@ async def get_m3u8(session, link):
         .decode()
     )
     p_url = yarl.URL(link)
-    ajax_url = "https://{}/encrypt-ajax.php".format(p_url.host)
+    ajax_url = f"https://{p_url.host}/encrypt-ajax.php"
 
     encrypted_ajax = base64.b64encode(
         AES.new(s, AES.MODE_CBC, iv=iv).encrypt(pad(p_url.query.get("id")).encode())

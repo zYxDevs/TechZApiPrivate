@@ -32,15 +32,13 @@ async def get_image(session, bg):
         word = random.choice(search)
         image_url = await Unsplash(session).search(word)
         image_url = random.choice(image_url["results"])
-        image_file = await download(session, image_url, f=True)
-        return image_file
+        return await download(session, image_url, f=True)
     elif bg == "wallflare":
         img = await WallFlare(session).home()
         img = random.choice(img["results"])
         image_url = (await WallFlare(session).download_link(img["id"]))["url"]
         print(image_url)
-        image_file = await download(session, image_url)
-        return image_file
+        return await download(session, image_url)
 
 
 def make_col():
@@ -62,18 +60,14 @@ def get_sizes(text, font, img, width_ratio):
 
     # border
     width, height = img.size
-    if width > height:
-        brdor = round((2 / 100) * height)
-    else:
-        brdor = round((2 / 100) * width)
-
+    brdor = (
+        round((2 / 100) * height)
+        if width > height
+        else round((2 / 100) * width)
+    )
     # font size modify
     if font_size > width or font_size > height:
-        if width > height:
-            font_size = round(height / 4)
-        else:
-            font_size = round(width / 4)
-
+        font_size = round(height / 4) if width > height else round(width / 4)
     print(font_size, width, height)
 
     # stroke width
@@ -109,11 +103,7 @@ async def generate_logo(
     square: Optional[bool] = None,
 ):
     text = text.upper()
-    if not img:
-        image_file = await get_image(session, bg)
-    else:
-        image_file = img
-
+    image_file = await get_image(session, bg) if not img else img
     fpath = glob.glob("resources/fonts/*")
     font = random.choice(fpath)
 
@@ -131,8 +121,7 @@ async def generate_logo(
     font_size, brdor, width, height, stroke_width = get_sizes(
         text, font, img, width_ratio
     )
-    if font_size > round(width / 2):
-        font_size = round(width / 2)
+    font_size = min(font_size, round(width / 2))
     if font_size > round(width / 2):
         font_size = round(height / 2)
     print(font_size, width, height)
@@ -152,7 +141,7 @@ async def generate_logo(
     img = ImageOps.expand(img, border=brdor, fill=border_color)
     img = ImageOps.expand(img, border=brdor, fill=border_color2)
 
-    file_name = "temp_files/" + str(random.randint(11111111, 99999999)) + ".jpg"
+    file_name = f"temp_files/{random.randint(11111111, 99999999)}.jpg"
     img.save(file_name)
     os.remove(image_file)
     return file_name

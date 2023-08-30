@@ -43,7 +43,7 @@ async def startup_event():
 
     print("Creating Aiohttp Sessions...")
     global session
-    for i in range(AIO_SESSIONS):
+    for _ in range(AIO_SESSIONS):
         session.append([aiohttp.ClientSession(), 0])
 
 
@@ -81,8 +81,7 @@ async def search_wall(api_key: str, query: str, page: int = 1, max: int = 10):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-    data = await WallFlare(get_session()).search(query, page, max)
-    return data
+    return await WallFlare(get_session()).search(query, page, max)
 
 
 @app.get("/wall/download", name="download wallflare", tags=["Wallpapers / Images"])
@@ -100,8 +99,7 @@ async def download_wall(api_key: str, id: str):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-    data = await WallFlare(get_session()).download_link(id)
-    return data
+    return await WallFlare(get_session()).download_link(id)
 
 
 # Unsplash.com
@@ -122,8 +120,7 @@ async def search_unsplash(api_key: str, query: str, max: int = 10):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-    data = await Unsplash(get_session()).search(query, max)
-    return data
+    return await Unsplash(get_session()).search(query, max)
 
 
 # Logo Maker
@@ -181,8 +178,7 @@ async def search_lyrics(api_key: str, query: str):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-    data = await get_lyrics(query)
-    return data
+    return await get_lyrics(query)
 
 
 # nyaa.si
@@ -203,8 +199,7 @@ async def nyaasi_latest(api_key: str, max: int = 10):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-    data = await Nyaasi.get_nyaa_latest()
-    return data
+    return await Nyaasi.get_nyaa_latest()
 
 
 @app.get("/nyaasi/info", name="nyaasi info", tags=["Nyaasi"])
@@ -220,8 +215,7 @@ async def nyaasi_info(api_key: str, id: int):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-    data = await Nyaasi(get_session()).get_nyaa_info(id)
-    return data
+    return await Nyaasi(get_session()).get_nyaa_info(id)
 
 
 # Urban Dictionary
@@ -243,8 +237,7 @@ async def search_ud(api_key: str, query: str, max: int = 10):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-    data = await get_urbandict(get_session(), query, max)
-    return data
+    return await get_urbandict(get_session(), query, max)
 
 
 # Gogoanime

@@ -53,7 +53,7 @@ class TPXAnime:
                 {"id": id, "img": imgs, "title": title, "updated_on": updated_on}
             )
 
-        if len(results) != 0:
+        if results:
             LATEST_CACHE[page] = {"time": time.time(), "results": results}
         return results
 
@@ -69,7 +69,7 @@ class TPXAnime:
         if time.time() - SEARCH_CACHE.get("time", 0) < 60 * 60:
             SEARCH_CACHE = {"time": time.time(), "query": {}}
 
-        async with self.session.get(f"https://{self.host}/?s=" + query) as resp:
+        async with self.session.get(f"https://{self.host}/?s={query}") as resp:
             soup = bs(
                 await resp.text(),
                 "html.parser",
@@ -94,7 +94,7 @@ class TPXAnime:
                 {"id": id, "img": imgs, "title": title, "updated_on": updated_on}
             )
 
-        if len(results) != 0:
+        if results:
             SEARCH_CACHE["query"][query] = results
         return results
 
@@ -108,7 +108,7 @@ class TPXAnime:
                 print("from cache")
                 return ANIME_CACHE[anime]["results"]
 
-        async with self.session.get(f"https://{self.host}/" + anime) as resp:
+        async with self.session.get(f"https://{self.host}/{anime}") as resp:
             soup = bs(
                 await resp.text(),
                 "html.parser",
@@ -152,7 +152,7 @@ class TPXAnime:
             if x == "genre":
                 z = True
 
-        if len(data) != 0:
+        if data:
             ANIME_CACHE[anime] = {"time": time.time(), "results": data}
         return data
 
@@ -166,8 +166,7 @@ class TPXAnime:
                 url = re.search(
                     r".*?document\.location\.href\s*=\s*\'([^']+)\'", html
                 ).group(1)
-                bypassed = PyBypass.bypass(url)
-                return bypassed
+                return PyBypass.bypass(url)
             except Exception as e:
                 print(e)
                 err += 1
